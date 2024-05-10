@@ -75,5 +75,20 @@ def create_dataset():
     data.to_csv('spotify_dataset.csv')
 
 
+def change_date(x):
+    try:
+        date_object = datetime.strptime(x, '%Y-%m-%d')
+        return date_object.year
+    except ValueError:
+        try:
+            date_object = datetime.strptime(x, '%Y')
+            return date_object.year
+        except ValueError:
+            return 'Nie znany format'
+
+
+
 if __name__ == '__main__':
+    import pandas as pd
+    from datetime import datetime
     create_dataset()
