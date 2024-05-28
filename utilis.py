@@ -1,3 +1,6 @@
+from datetime import datetime
+
+
 def change_string(x):
     x = x.replace('{', '')
     x = x.replace('}', '')
@@ -59,7 +62,7 @@ def create_new_column(column, df):
 
 def create_dataset():
     data = None
-    for i in range(11):
+    for i in range(24):
         print(i)
         try:
             new_data = pd.read_csv(f'playlist{i}.csv')
@@ -72,7 +75,7 @@ def create_dataset():
         except AttributeError:
             print(f'Nie powiodło się z {i}')
 
-    data.to_csv('spotify_dataset.csv')
+    data.to_csv('spotify_data.csv')
 
 
 def change_date(x):
@@ -84,8 +87,30 @@ def change_date(x):
             date_object = datetime.strptime(x, '%Y')
             return date_object.year
         except ValueError:
-            return 'Nie znany format'
+            try:
+                date_object = datetime.strptime(x, '%Y-%m')
+                return date_object.year
+            except ValueError:
+                print('Nieznany format')
 
+
+def cor_features(df):
+    highly_correlated_features = set()
+    correlation_matrix = df.corr().abs()
+    for i in range(len(correlation_matrix.columns)):
+        for j in range(i):
+            if correlation_matrix.iloc[i, j] > 0.6:
+                colname = correlation_matrix.columns[i]
+                highly_correlated_features.add(colname)
+    print("Highly correlated features:", highly_correlated_features)
+
+
+def signif_features(df):
+    significant_features = df.corr()['stroke'].abs().sort_values(ascending=False)
+    significant_features = significant_features[significant_features > 0.1].index.tolist()
+    for i in significant_features:
+        print(i)
+    return significant_features
 
 
 if __name__ == '__main__':

@@ -94,7 +94,7 @@ def get_playlist_link():
 
 
 playlists = get_playlist_link()
-for i in range(11, len(playlists)):
+for i in range(20, len(playlists)):
     extract(playlists[i], file_path=f'playlist{i}.csv')
 
 
