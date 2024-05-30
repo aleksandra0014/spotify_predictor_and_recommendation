@@ -104,14 +104,34 @@ def cor_features(df):
                 highly_correlated_features.add(colname)
     print("Highly correlated features:", highly_correlated_features)
 
-
-def signif_features(df):
-    significant_features = df.corr()['stroke'].abs().sort_values(ascending=False)
-    significant_features = significant_features[significant_features > 0.1].index.tolist()
-    for i in significant_features:
-        print(i)
-    return significant_features
-
+def change_genre(x):
+    import re
+    if re.search('pop', x):
+        return 'pop'
+    elif re.search('hip hop', x):
+        return 'hip hop'
+    elif re.search('rock', x):
+        return 'rock'
+    elif re.search('blues', x):
+        return 'blues'
+    elif re.search('indie', x):
+        return 'indie'
+    elif re.search('folk', x):
+        return 'folk'
+    elif re.search('metal', x):
+        return 'metal'
+    elif re.search('jazz', x):
+        return 'jazz'
+    elif re.search('soul', x):
+        return 'soul'
+    elif re.search('dance', x):
+        return 'dance'
+    elif re.search('rap', x):
+        return 'rap'
+    elif re.search('classical', x):
+        return 'classical'
+    else:
+        return 'other'
 
 if __name__ == '__main__':
     import pandas as pd
