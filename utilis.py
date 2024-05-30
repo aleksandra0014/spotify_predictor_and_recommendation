@@ -1,5 +1,5 @@
 from datetime import datetime
-
+import pandas as pd
 
 def change_string(x):
     x = x.replace('{', '')
@@ -11,8 +11,8 @@ def change_string(x):
 def tranform_column(column):
     d = column.apply(change_string)
     list_of_dictionaries = []
-    data_dict = {}
     for row in d:
+        data_dict = {}
         for item in row:
             item = item.replace("'", "").strip()
             key, value = item.split(':', 1)
@@ -60,9 +60,9 @@ def create_new_column(column, df):
 
     return df
 
-def create_dataset():
+def create_dataset(k):
     data = None
-    for i in range(24):
+    for i in range(k):
         print(i)
         try:
             new_data = pd.read_csv(f'playlist{i}.csv')
@@ -75,7 +75,16 @@ def create_dataset():
         except AttributeError:
             print(f'Nie powiodło się z {i}')
 
-    data.to_csv('spotify_data.csv')
+    data.to_csv('final_data.csv')
+
+def create_dataset2(file):
+    try:
+        new_data = pd.read_csv(file)
+        new_data.dropna(inplace=True, subset=['other'])
+        create_new_column(new_data['other'], new_data)
+        new_data.to_csv(f'new_{file}')
+    except AttributeError:
+        print(f'Nie powiodło się.')
 
 
 def change_date(x):
@@ -103,6 +112,7 @@ def cor_features(df):
                 colname = correlation_matrix.columns[i]
                 highly_correlated_features.add(colname)
     print("Highly correlated features:", highly_correlated_features)
+
 
 def change_genre(x):
     import re
@@ -133,7 +143,6 @@ def change_genre(x):
     else:
         return 'other'
 
+
 if __name__ == '__main__':
-    import pandas as pd
-    from datetime import datetime
-    create_dataset()
+    create_dataset(24)
