@@ -92,9 +92,9 @@ def get_playlist_link():
             playlists.append(line)
     return playlists
 
-
-playlists = get_playlist_link()
-for i in range(20, len(playlists)):
-    extract(playlists[i], file_path=f'playlist{i}.csv')
+if __name__ == '__main__':
+    playlists = get_playlist_link()
+    for i in range(20, len(playlists)):
+        extract(playlists[i], file_path=f'playlist{i}.csv')
 
 
