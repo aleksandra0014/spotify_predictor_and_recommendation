@@ -1,43 +1,19 @@
 import streamlit as st
-import pandas as pd
 from sklearn.preprocessing import StandardScaler
 import pickle
 from yellowbrick.target import FeatureCorrelation
 import numpy as np
 import matplotlib.pyplot as plt
-
-def get_popularity(data, artist):
-    filt = data['artist'] == artist
-    return data[filt]['artist pop'].iloc[0]
-
-def synchronize_columns(df1, df2):
-    column_order = df2.columns.tolist()
-    missing_in_df1 = set(df2.columns) - set(df1.columns)
-    for col in missing_in_df1:
-        df1[col] = 0
-    df1 = df1[column_order]
-
-    return df1, df2
-
-def show_correlation(data):
-    feature_names = ['acousticness', 'danceability', 'energy', 'instrumentalness',
-                     'liveness', 'loudness', 'speechiness', 'tempo', 'valence', 'duration', 'year']
-
-    X, y = data[feature_names], data['track pop']
-
-    features = np.array(feature_names)
-
-    visualizer = FeatureCorrelation(labels=features)
-
-    plt.rcParams['figure.figsize'] = (10, 8)
-    visualizer.fit(X, y)
-    st.set_option('deprecation.showPyplotGlobalUse', False)
-    st.pyplot()
-
-def show_feature_hist(data):
-    data.hist(figsize=(15, 12), bins=10)
-    st.set_option('deprecation.showPyplotGlobalUse', False)
-    st.pyplot()
+import seaborn as sns
+from extracting_data import extract
+from utilis import change_date, change_genre
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+from func_for_analysis import *
+from func_for_recommend import *
+from func_for_predictions import *
 
 def inputs(data):
     description = data.describe()
@@ -87,26 +63,63 @@ def predict_pop(en_data, row):
 
 
 def main():
-    data = pd.read_csv('dane_po_EDA.csv')
-    en_data = pd.read_csv('spotify_data_encoded2.csv')
-    en_data.drop([en_data.columns[0]], axis=1, inplace=True)
-    en_data.drop(columns=['track', 'album', 'artist', 'instrumentalness', 'acousticness', 'track pop'], inplace=True)
-    data.drop([data.columns[0]], axis=1, inplace=True)
+    # Dodawanie elementów do bocznego menu
+    st.sidebar.title('Boczne Menu')
 
-    st.title("Spotify predictions")
-    if st.button('Show data base'):
-        st.write(data)
+    # Opcje w bocznym menu
+    option = st.sidebar.selectbox(
+        'Wybierz funkcjonalność:',
+        ['Prediction', 'Recommender']
+    )
+    if option == 'Prediction':
 
-    if st.button("Show correaltion with target"):
-        show_correlation(data)
+        data = pd.read_csv('dane_po_EDA.csv')
+        en_data = pd.read_csv('spotify_data_encoded2.csv')
+        en_data.drop([en_data.columns[0]], axis=1, inplace=True)
+        en_data.drop(columns=['track', 'album', 'artist', 'instrumentalness', 'acousticness', 'track pop'], inplace=True)
+        data.drop([data.columns[0]], axis=1, inplace=True)
 
-    if st.button("Show feature distirbutions"):
-        show_feature_hist(data)
+        st.title("Spotify predictions")
+        if st.button('Show data base'):
+            st.write(data)
 
-    frame = inputs(data)
+        if st.button("Show correaltion with target"):
+            show_correlation(data)
 
-    if st.button('Predykcja'):
-        st.write(predict_pop(en_data, frame))
+        if st.button("Show popularity by genre"):
+            show_popularity_vs_genre(data)
+
+        if st.button("Show feature distirbutions"):
+            show_feature_hist(data)
+
+        frame = inputs(data)
+
+        if st.button('Prediction', type="primary"):
+            st.write(predict_pop(en_data, frame))
+    else:
+        st.title("Spotify recommend system")
+        link = st.text_input('Link:', value='https://open.spotify.com/playlist/041EEjr8FMkWlzbuKnSXYD?si=161e174cef984d55')
+        playlist_encoded, playlist = get_playlist_data(link, 'p')
+        if st.button("Check your playlist analysis"):
+            if st.button("Show you playlist"):
+                st.dataframe(playlist)
+            if st.button("Show 10 the most popular artist from playlist"):
+                show_pop_artist(playlist)
+            if st.button("Show 10 the most popular tracks from playlist"):
+                show_pop_tracks(playlist)
+            if st.button("Show genre in playlist"):
+                show_genre(playlist)
+            if st.button("Show amount of tracks from each year"):
+                show_track_per_year(playlist)
+            if st.button("Show track popularity density"):
+                show_pop_density(playlist)
+
+        if st.button("Check your playlist recommendations"):
+            top_similarities_filtered = recomend(playlist_encoded, playlist)
+            n = st.slider('Number of tracks:', min_value=1, max_value=50, value=20)
+            top_similarities_filtered_display = top_similarities_filtered[
+                ['track', 'artist_x', 'similarity_score']].head(n).reset_index(drop=True)
+            st.dataframe(top_similarities_filtered_display)
 
 
 if __name__ == '__main__':
