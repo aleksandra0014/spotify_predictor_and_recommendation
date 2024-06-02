@@ -10,7 +10,6 @@ from utilis import change_date, change_genre
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
 from func_for_analysis import *
 from func_for_recommend import *
 from func_for_predictions import *
@@ -64,11 +63,11 @@ def predict_pop(en_data, row):
 
 def main():
     # Dodawanie elementów do bocznego menu
-    st.sidebar.title('Boczne Menu')
+    st.sidebar.title('Side Menu')
 
     # Opcje w bocznym menu
     option = st.sidebar.selectbox(
-        'Wybierz funkcjonalność:',
+        'Choose option:',
         ['Prediction', 'Recommender']
     )
     if option == 'Prediction':
@@ -101,25 +100,27 @@ def main():
         link = st.text_input('Link:', value='https://open.spotify.com/playlist/041EEjr8FMkWlzbuKnSXYD?si=161e174cef984d55')
         playlist_encoded, playlist = get_playlist_data(link, 'p')
         if st.button("Check your playlist analysis"):
-            if st.button("Show you playlist"):
-                st.dataframe(playlist)
-            if st.button("Show 10 the most popular artist from playlist"):
-                show_pop_artist(playlist)
-            if st.button("Show 10 the most popular tracks from playlist"):
-                show_pop_tracks(playlist)
-            if st.button("Show genre in playlist"):
-                show_genre(playlist)
-            if st.button("Show amount of tracks from each year"):
-                show_track_per_year(playlist)
-            if st.button("Show track popularity density"):
-                show_pop_density(playlist)
+            st.subheader("Your playlist")
+            st.dataframe(playlist)
+            st.subheader("10 the most popular artist from playlist")
+            show_pop_artist(playlist)
+            st.subheader("10 the most popular tracks from playlist")
+            show_pop_tracks(playlist)
+            st.subheader("Genre in playlist")
+            show_genre(playlist)
+            st.subheader("Amount of tracks from each year")
+            show_track_per_year(playlist)
+            st.subheader("Track popularity density")
+            show_pop_density(playlist)
 
-        if st.button("Check your playlist recommendations"):
-            top_similarities_filtered = recomend(playlist_encoded, playlist)
-            n = st.slider('Number of tracks:', min_value=1, max_value=50, value=20)
+        st.subheader("Check your playlist recommendations")
+        top_similarities_filtered = recomend(playlist_encoded, playlist)
+        n = st.slider('Number of tracks:', min_value=1, max_value=50, value=20)
+        if st.button('Check', type='primary'):
             top_similarities_filtered_display = top_similarities_filtered[
-                ['track', 'artist_x', 'similarity_score']].head(n).reset_index(drop=True)
+                        ['track', 'artist_x', 'similarity_score']].head(n).reset_index(drop=True)
             st.dataframe(top_similarities_filtered_display)
+
 
 
 if __name__ == '__main__':
