@@ -41,7 +41,7 @@ def inputs(data):
     li = st.number_input('Liveness:')
     st.write(des['valence'])
     v = st.number_input('Valence:')
-    y = st.text_input('Year:', value='2020')
+    y = st.text_input('Year:', value='2024')
     y = int(y)
     g = st.selectbox('Genre:',
                      ['pop', 'hip hop', 'classical', 'dance', 'folk', 'soul', 'rock', 'metal', 'rap', 'jazz', 'indie',
@@ -63,11 +63,13 @@ def predict_pop(en_data, row):
 
 def main():
     # Dodawanie elementów do bocznego menu
-    st.sidebar.title('Side Menu')
-
+    st.sidebar.title('🎶'
+                     'Welcome in Spotify'
+                     '🎶')
+    st.sidebar.subheader('Select what you want to do👇️')
     # Opcje w bocznym menu
     option = st.sidebar.selectbox(
-        'Choose option:',
+        'Your options:',
         ['Prediction', 'Recommender']
     )
     if option == 'Prediction':
@@ -78,7 +80,8 @@ def main():
         en_data.drop(columns=['track', 'album', 'artist', 'instrumentalness', 'acousticness', 'track pop'], inplace=True)
         data.drop([data.columns[0]], axis=1, inplace=True)
 
-        st.title("Spotify predictions")
+
+        st.title("🔮 Spotify Popularity Predictions")
         if st.button('Show data base'):
             st.write(data)
 
@@ -91,12 +94,41 @@ def main():
         if st.button("Show feature distirbutions"):
             show_feature_hist(data)
 
+        st.markdown('### Predict popularity of your song!🔍')
         frame = inputs(data)
-
         if st.button('Prediction', type="primary"):
-            st.write(predict_pop(en_data, frame))
+            st.write(
+                """
+                <style>
+                .centered-row {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    flex-direction: column;
+                    text-align: center;
+                }
+                .green-text {
+                    color: green; /* Zielony kolor tekstu */
+                    font-size: 36px; /* Powiększenie tekstu */
+                }
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
+
+            st.markdown(
+                """
+                <div class="centered-row">
+                    <p>Predicted Popularity</p>
+                    <p class="green-text">{}</p>
+                </div>
+                """.format(round(predict_pop(en_data, frame)[0],2)),
+                unsafe_allow_html=True
+            )
+
+            show_pop_density(data, round(predict_pop(en_data, frame)[0],2), True)
     else:
-        st.title("Spotify recommend system")
+        st.title("🎧 Spotify Song Recommender")
         link = st.text_input('Link:', value='https://open.spotify.com/playlist/041EEjr8FMkWlzbuKnSXYD?si=161e174cef984d55')
         playlist_encoded, playlist = get_playlist_data(link, 'p')
         if st.button("Check your playlist analysis"):
@@ -111,7 +143,7 @@ def main():
             st.subheader("Amount of tracks from each year")
             show_track_per_year(playlist)
             st.subheader("Track popularity density")
-            show_pop_density(playlist)
+            show_pop_density(playlist, 0)
 
         st.subheader("Check your playlist recommendations")
         top_similarities_filtered = recomend(playlist_encoded, playlist)

@@ -109,9 +109,12 @@ def cor_features(df):
     for i in range(len(correlation_matrix.columns)):
         for j in range(i):
             if correlation_matrix.iloc[i, j] > 0.6:
-                colname = correlation_matrix.columns[i]
-                highly_correlated_features.add(colname)
-    print("Highly correlated features:", highly_correlated_features)
+                colname_i = correlation_matrix.columns[i]
+                colname_j = correlation_matrix.columns[j]
+                highly_correlated_features.add((colname_i, colname_j, correlation_matrix.iloc[i, j]))
+    print("Pairs of highly correlated features:")
+    for pair in highly_correlated_features:
+        print(pair)
 
 
 def change_genre(x):

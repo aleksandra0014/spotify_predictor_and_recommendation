@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from yellowbrick.target import FeatureCorrelation
-
+import plotly.express as px
 
 def get_popularity(data, artist):
     filt = data['artist'] == artist
@@ -18,32 +18,44 @@ def synchronize_columns(df1, df2):
 
     return df1, df2
 
+
 def show_correlation(data):
     feature_names = ['acousticness', 'danceability', 'energy', 'instrumentalness',
                      'liveness', 'loudness', 'speechiness', 'tempo', 'valence', 'duration', 'year']
 
     X, y = data[feature_names], data['track pop']
 
-    features = np.array(feature_names)
+    corr_matrix = X.corr()
 
-    visualizer = FeatureCorrelation(labels=features)
+    fig = px.imshow(corr_matrix, x=feature_names, y=feature_names, color_continuous_scale='gray')
+    fig.update_layout(title='Feature Correlation', plot_bgcolor='black', paper_bgcolor='black',
+                      font=dict(color='white'), width=800, height=600)
+    fig.update_xaxes(tickangle=45, tickfont=dict(color='white'))
+    fig.update_yaxes(tickangle=45, tickfont=dict(color='white'))
 
-    plt.rcParams['figure.figsize'] = (10, 8)
-    visualizer.fit(X, y)
-    st.set_option('deprecation.showPyplotGlobalUse', False)
-    st.pyplot()
+    st.plotly_chart(fig)
+
 
 def show_popularity_vs_genre(data):
-    plt.figure(figsize=(10, 6))
-    sns.boxplot(x='new genre', y='track pop', data=data, palette='Reds')
-    plt.title('Rozkład popularności piosenek według gatunku')
-    plt.xlabel('Gatunek')
-    plt.ylabel('Popularność piosenki')
-    plt.xticks(rotation=305)
-    st.set_option('deprecation.showPyplotGlobalUse', False)
-    st.pyplot()
+    fig = px.box(data, x='new genre', y='track pop', title='Popularity of songs by genre',
+                 labels={'new genre': 'Genre', 'track pop': 'Song popularity'})
+
+    fig.update_layout(plot_bgcolor='black', paper_bgcolor='black', font=dict(color='white'))
+
+    fig.update_xaxes(tickangle=305)
+
+    st.plotly_chart(fig)
 
 def show_feature_hist(data):
-    data.hist(figsize=(15, 12), bins=10)
-    st.set_option('deprecation.showPyplotGlobalUse', False)
-    st.pyplot()
+    with plt.style.context('dark_background'):
+        plt.figure(figsize=(20, 20))
+        data.hist(bins=10, color='skyblue')
+        plt.title('Histogram of Features', color='white', pad=20)
+        plt.xlabel('Feature Values', color='white', labelpad=20)
+        plt.ylabel('Frequency', color='white', labelpad=20)
+        plt.xticks(color='white', fontsize=9)
+        plt.yticks(color='white', fontsize=9)
+        plt.grid(color='gray', linestyle='--', linewidth=0.5)
+        plt.tight_layout()
+        st.set_option('deprecation.showPyplotGlobalUse', False)
+        st.pyplot()
