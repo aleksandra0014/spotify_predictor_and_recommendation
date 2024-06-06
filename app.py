@@ -129,8 +129,28 @@ def main():
             show_pop_density(data, round(predict_pop(en_data, frame)[0],2), True)
     else:
         st.title("🎧 Spotify Song Recommender")
-        link = st.text_input('Link:', value='https://open.spotify.com/playlist/041EEjr8FMkWlzbuKnSXYD?si=161e174cef984d55')
-        playlist_encoded, playlist = get_playlist_data(link, 'p')
+        link = st.text_input('Link:',
+                             value='https://open.spotify.com/playlist/041EEjr8FMkWlzbuKnSXYD?si=161e174cef984d55')
+
+        if 'previous_link' not in st.session_state:
+            st.session_state['previous_link'] = ''
+
+        if 'playlist_data' not in st.session_state:
+            st.session_state['playlist_data'] = None
+
+        if 'playlist_encoded' not in st.session_state:
+            st.session_state['playlist_encoded'] = None
+
+        # Check if the link has changed
+        if link != st.session_state['previous_link']:
+            st.session_state['previous_link'] = link
+            playlist_encoded, playlist = get_playlist_data(link, 'p')
+            st.session_state['playlist_encoded'] = playlist_encoded
+            st.session_state['playlist_data'] = playlist
+        else:
+            playlist_encoded = st.session_state['playlist_encoded']
+            playlist = st.session_state['playlist_data']
+
         if st.button("Check your playlist analysis"):
             st.subheader("Your playlist")
             st.dataframe(playlist)
@@ -150,7 +170,7 @@ def main():
         n = st.slider('Number of tracks:', min_value=1, max_value=50, value=20)
         if st.button('Check', type='primary'):
             top_similarities_filtered_display = top_similarities_filtered[
-                        ['track', 'artist_x', 'similarity_score']].head(n).reset_index(drop=True)
+                ['track', 'artist_x', 'similarity_score']].head(n).reset_index(drop=True)
             st.dataframe(top_similarities_filtered_display)
 
 
