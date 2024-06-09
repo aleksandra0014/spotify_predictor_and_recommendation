@@ -7,7 +7,7 @@ Based on features such as energy, liveness, tempo, duration, etc., we predict wh
 Methods used for prediction:
 ### Linear Regression, Polynomial Regression, Random Forest, XGBOOST, MLP.
 Then, an application was created to quickly see if a song will achieve commercial success by entering its details. The Streamlit library was used to create the application.
-Link to check how the application works:  https://drive.google.com/file/d/1sMoD6Mdwt0KqT4vqjPWnhkq4j_ClraS5/view?usp=sharing
+/Link to check how the application works:  https://drive.google.com/file/d/1sMoD6Mdwt0KqT4vqjPWnhkq4j_ClraS5/view?usp=sharing
 ## 2. MUSIC GENRE CLASSIFICATION
 The next part of the project was to see if we could determine the genre of a song using the available features from the data. This task proved to be challenging, as Spotify does not assign only one genre to a song.
 When retrieving the data, only the first genre on the list of a song's genres was taken, so the classification was not very effective. The results of the classifiers were unsatisfactory. Accuracy was around 50-60%.
